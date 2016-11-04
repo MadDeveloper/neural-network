@@ -1,0 +1,18 @@
+{
+  "name": "darse",
+  "version": "1.0.0",
+  "description": "Darse IA",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "IA"
+  ],
+  "author": "Julien Sergent",
+  "license": "MIT",
+  "dependencies": {
+    "uniqid": "^4.1.0"
+  }
+}
