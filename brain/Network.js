@@ -12,12 +12,19 @@ class Network {
 
     run() {
         let args = Array.prototype.slice.call( arguments[ 0 ] )
+        
         return this.architecture.run.apply( this.architecture, args )
     }
 
     backpropagate() {
         let args = Array.prototype.slice.call( arguments )
         this.architecture.backpropagate.apply( this.architecture, args )
+    }
+
+    exportNetwork() {
+        let args = Array.prototype.slice.call( arguments )
+
+        return this.architecture.exportNetwork.apply( this.architecture, args )
     }
 }
 

@@ -4,21 +4,22 @@ class Trainer {
     }
 
     train( exercices, options = {} ) {
-        let learningRate = options.learningRate || .3
-        let maxIterations = options.maxIterations || 1
+        let learningRate = options.learningRate || .1
+        let maxIterations = options.maxIterations || 100000
 
-        exercices.forEach( exercice => {
-            let iteration = 1
+        let iteration = 1
 
-            do {
+        do {
+            exercices.forEach( exercice => {
                 const predicted = this.network.run( exercice.input )
                 iteration++
 
-                if ( predicted !== exercice.output ) {
-                    this.network.backpropagate( learningRate )
+                if ( predicted.toString() !== exercice.output.toString() ) {
+                    // console.log( `exercice ${exercice.label}; expected: ${exercice.output.toString()}; predicted: ${predicted.toString()}` )
+                    this.network.backpropagate( learningRate, exercice.output )
                 }
-            } while ( maxIterations >= iteration )
-        })
+            })
+        } while ( maxIterations >= iteration )
     }
 }
 

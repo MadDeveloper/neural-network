@@ -56,21 +56,69 @@ class Perceptron {
 
     connectNeurons() {
         this.layers.hidden.forEach( hiddenNeuron => {
-            this.layers.input.forEach( inputNeuron => {
-                hiddenNeuron.connect( inputNeuron )
-            })
+            this.layers.input.forEach( inputNeuron => hiddenNeuron.connect( inputNeuron ) )
         })
 
         this.layers.output.forEach( outputNeuron => {
-            this.layers.hidden.forEach( hiddenNeuron => {
-                outputNeuron.connect( hiddenNeuron )
-            })
+            this.layers.hidden.forEach( hiddenNeuron => outputNeuron.connect( hiddenNeuron ) )
         })
     }
 
-    backpropagate( learningRate ) {
-        
+    backpropagate( learningRate, output ) {
+        /* calculate all derivatives and deltas */
+        this.layers.output.forEach( ( outputNeuron, index ) => outputNeuron.calculateDerivativePartialOfTheLossAsOutputNeuron( output[ index ] ) )
+        this.layers.hidden.forEach( hiddenNeuron => hiddenNeuron.calculateDerivativePartialOfTheLoss() )
+
+        /* update weights, from input to output layer */
+        this.layers.input.forEach( inputNeuron => inputNeuron.updateConnectionsWeights( learningRate ) )
+        this.layers.hidden.forEach( hiddenNeuron => hiddenNeuron.updateConnectionsWeights( learningRate ) )
+    }
+
+    exportNetwork() {
+        return JSON.stringifyOnce( this.layers, null, '  ' )
     }
 }
 
 module.exports = Perceptron
+
+JSON.stringifyOnce = function(obj, replacer, indent){
+    var printedObjects = [];
+    var printedObjectKeys = [];
+
+    function printOnceReplacer(key, value){
+        if ( printedObjects.length > 2000){ // browsers will not print more than 20K, I don't see the point to allow 2K.. algorithm will not be fast anyway if we have too many objects
+        return 'object too long';
+        }
+        var printedObjIndex = false;
+        printedObjects.forEach(function(obj, index){
+            if(obj===value){
+                printedObjIndex = index;
+            }
+        });
+
+        if ( key == ''){ //root element
+             printedObjects.push(obj);
+            printedObjectKeys.push("root");
+             return value;
+        }
+
+        else if(printedObjIndex+"" != "false" && typeof(value)=="object"){
+            if ( printedObjectKeys[printedObjIndex] == "root"){
+                return "(pointer to root)";
+            }else{
+                return "(see " + ((!!value && !!value.constructor) ? value.constructor.name.toLowerCase()  : typeof(value)) + " with key " + printedObjectKeys[printedObjIndex] + ")";
+            }
+        }else{
+
+            var qualifiedKey = key || "(empty key)";
+            printedObjects.push(value);
+            printedObjectKeys.push(qualifiedKey);
+            if(replacer){
+                return replacer(key, value);
+            }else{
+                return value;
+            }
+        }
+    }
+    return JSON.stringify(obj, printOnceReplacer, indent);
+};
