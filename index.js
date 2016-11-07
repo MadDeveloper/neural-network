@@ -11,7 +11,7 @@ console.log(`
     \t[1,1]: ${net.run([ 1, 1 ])[ 0 ]}
 `)
 
-const trainer = new Trainer( Darse )
+const trainer = new Trainer( net )
 trainer.train([
     { input: [ 0, 0 ], output: [ 0 ], label: '0,0' },
     { input: [ 1, 0 ], output: [ 1 ], label: '1,0' },

@@ -23,7 +23,9 @@ class Perceptron {
         let output = []
 
         this.layers.input.forEach( ( inputNeuron, index ) => inputNeuron.value = argsRun[ index ] )
-        this.layers.hidden.forEach( hiddenNeuron => hiddenNeuron.activate() )
+        this.layers.hidden.forEach( hiddenNeuronLayer => {
+            hiddenNeuronLayer.forEach( hiddenNeuron => hiddenNeuron.activate() )
+        })
         this.layers.output.forEach( outputNeuron => output.push( outputNeuron.activate() ) )
 
         return output
@@ -49,29 +51,51 @@ class Perceptron {
     }
 
     createLayer( numberOfNeurons, layer ) {
+        if ( 'hidden' === layer ) {
+            layer = this.layers.hidden[ this.layers.hidden.length ] = []
+        } else {
+            layer = this.layers[ layer ]
+        }
+
         for ( let i = 0; i < numberOfNeurons; i++ ) {
-            this.layers[ layer ].push( new Neuron() )
+            layer.push( new Neuron() )
         }
     }
 
     connectNeurons() {
-        this.layers.hidden.forEach( hiddenNeuron => {
-            this.layers.input.forEach( inputNeuron => hiddenNeuron.connect( inputNeuron ) )
-        })
+        if ( this.layers.hidden.length > 0 ) {
+            this.layers.hidden[ 0 ].forEach( hiddenNeuron => {
+                this.layers.input.forEach( inputNeuron => hiddenNeuron.connect( inputNeuron ) )
+            })
 
-        this.layers.output.forEach( outputNeuron => {
-            this.layers.hidden.forEach( hiddenNeuron => outputNeuron.connect( hiddenNeuron ) )
-        })
+            for ( let i = 1, hiddenLayersLength = this.layers.hidden.length; i < hiddenLayersLength; i++ ) {
+                this.layers.hidden[ i ].forEach( hiddenNeuron => {
+                    this.layers.hidden[ i - 1 ].forEach( previousLayerHiddenNeuron => hiddenNeuron.connect( previousLayerHiddenNeuron ) )
+                })
+            }
+
+            this.layers.output.forEach( outputNeuron => {
+                this.layers.hidden[ this.layers.hidden.length - 1 ].forEach( hiddenNeuron => outputNeuron.connect( hiddenNeuron ) )
+            })
+        } else {
+            this.layers.output.forEach( outputNeuron => {
+                this.layers.input.forEach( inputNeuron => outputNeuron.connect( inputNeuron ) )
+            })
+        }
     }
 
     backpropagate( learningRate, output ) {
         /* calculate all derivatives and deltas */
         this.layers.output.forEach( ( outputNeuron, index ) => outputNeuron.calculateDerivativePartialOfTheLossAsOutputNeuron( output[ index ] ) )
-        this.layers.hidden.forEach( hiddenNeuron => hiddenNeuron.calculateDerivativePartialOfTheLoss() )
+        this.layers.hidden.forEach( hiddenNeuronLayer => {
+            hiddenNeuronLayer.forEach( hiddenNeuron => hiddenNeuron.calculateDerivativePartialOfTheLoss() )
+        })
 
         /* update weights, from input to output layer */
         this.layers.input.forEach( inputNeuron => inputNeuron.updateConnectionsWeights( learningRate ) )
-        this.layers.hidden.forEach( hiddenNeuron => hiddenNeuron.updateConnectionsWeights( learningRate ) )
+        this.layers.hidden.forEach( hiddenNeuronLayer => {
+            hiddenNeuronLayer.forEach( hiddenNeuron => hiddenNeuron.updateConnectionsWeights( learningRate ) )
+        })
     }
 
     exportNetwork() {
