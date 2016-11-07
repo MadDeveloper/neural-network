@@ -15,7 +15,6 @@ class Trainer {
                 iteration++
 
                 if ( predicted.toString() !== exercice.output.toString() ) {
-                    // console.log( `exercice ${exercice.label}; expected: ${exercice.output.toString()}; predicted: ${predicted.toString()}` )
                     this.network.backpropagate( learningRate, exercice.output )
                 }
             })

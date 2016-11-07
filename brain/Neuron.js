@@ -18,7 +18,7 @@ class Neuron {
             this.value += ( connection.weight * connection.neuron.value )
         })
 
-        // this.value += this.bias
+        this.value += this.bias
         this.valueBeforeActivation = this.value
         this.value = this.activation()
 
